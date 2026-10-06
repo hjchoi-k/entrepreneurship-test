@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>기업가 역량 검사 결과 확인</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    /* 전체 화면 기본 설정 */
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f7fb;
+      color: #222;
+    }
+
+    /* 전체 페이지 감싸는 영역 */
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    /* 제목 영역 */
+    .header {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.6rem;
+      color: #263238;
+    }
+
+    .summary {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .summary-card {
+      flex: 1;
+      min-width: 160px;
+      background: #eef3ff;
+      padding: 14px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .summary-card .label {
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .summary-card .value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-top: 4px;
+      color: #1a237e;
+    }
+
+    /* 버튼 영역 */
+    .button-area {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .btn-refresh {
+      background: #3f51b5;
+      color: white;
+    }
+
+    .btn-clear {
+      background: #f44336;
+      color: white;
+    }
+
+    .btn-download {
+      background: #009688;
+      color: white;
+    }
+
+    /* 표를 감싸는 영역 */
+    .table-box {
+      background: white;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 850px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+
+    th {
+      background: #f0f0f8;
+      font-weight: bold;
+    }
+
+    tr:nth-child(even) {
+      background: #fafafa;
+    }
+
+    /* 가장 높은 점수를 받은 역량 표시 */
+    .best-strength {
+      color: red;
+      font-weight: bold;
+    }
+
+    /* 점수 막대 */
+    .bar-wrap {
+      width: 100%;
+      background: #eeeeee;
+      border-radius: 999px;
+      height: 12px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .bar {
+      height: 100%;
+      background: #3f51b5;
+      border-radius: 999px;
+    }
+
+    .score-cell {
+      min-width: 110px;
+    }
+
+    .empty {
+      padding: 40px;
+      text-align: center;
+      color: #777;
+    }
+
+    .notice {
+      font-size: 0.9rem;
+      color: #666;
+      line-height: 1.5;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .page {
+        padding: 12px;
+      }
+
+      h1 {
+        font-size: 1.3rem;
+      }
+
+      .summary-card .value {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <!-- 상단 제목 및 요약 -->
+    <div class="header">
+      <h1>기업가 역량 검사 결과 확인</h1>
+      <p>
+        학생들이 검사한 결과를 확인하는 교사용 페이지입니다.
+        각 학생의 네 가지 역량 점수와 가장 높은 역량을 한눈에 볼 수 있습니다.
+      </p>
+
+      <div class="summary">
+        <div class="summary-card">
+          <div class="label">참여 학생 수</div>
+          <div class="value" id="total-count">0명</div>
+        </div>
+
+        <div class="summary-card">
+          <div class="label">평균 총점</div>
+          <div class="value" id="average-total">0점</div>
+        </div>
+
+        <div class="summary-card">
+          <div class="label">가장 많이 나온 최고 역량</div>
+          <div class="value" id="most-best">-</div>
+        </div>
+      </div>
+
+      <p class="notice">
+        ※ 최고 역량은 빨간색 굵은 글씨로 표시됩니다.
+        동점일 경우 여러 역량이 함께 표시됩니다.
+      </p>
+    </div>
+
+    <!-- 버튼 영역 -->
+    <div class="button-area">
+      <button class="btn-refresh" onclick="loadResults()">결과 새로고침</button>
+      <button class="btn-download" onclick="downloadCSV()">엑셀용 CSV 다운로드</button>
+      <button class="btn-clear" onclick="clearResults()">전체 결과 삭제</button>
+    </div>
+
+    <!-- 결과 표 -->
+    <div class="table-box">
+      <table>
+        <thead>
+          <tr>
+            <th>번호</th>
+            <th>이름</th>
+            <th>검사일시</th>
+            <th>도전</th>
+            <th>가치창출</th>
+            <th>협력</th>
+            <th>진취</th>
+            <th>총점</th>
+            <th>가장 높은 역량</th>
+          </tr>
+        </thead>
+        <tbody id="result-body">
+          <!-- 자바스크립트로 결과 행이 들어갑니다. -->
+        </tbody>
+      </table>
+
+      <div id="empty-message" class="empty hidden">
+        아직 저장된 검사 결과가 없습니다.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 각 역량의 최고점
+    // 체크리스트가 각 역량별 3문항이고, 문항당 5점이라면 15점입니다.
+    // 만약 학생용 페이지를 3점 척도로 운영한다면 9로 바꿔 주세요.
+    const MAX_SCORE_PER_STRENGTH = 15;
+
+    // 전체 최고점
+    const MAX_TOTAL_SCORE = MAX_SCORE_PER_STRENGTH * 4;
+
+    // HTML 요소 가져오기
+    const resultBody = document.getElementById("result-body");
+    const emptyMessage = document.getElementById("empty-message");
+    const totalCount = document.getElementById("total-count");
+    const averageTotal = document.getElementById("average-total");
+    const mostBest = document.getElementById("most-best");
+
+    // 역량명을 한글로 바꾸는 함수
+    function getKoreanStrengthName(key) {
+      const names = {
+        challenge: "도전",
+        value: "가치창출",
+        cooperation: "협력",
+        proactive: "진취"
+      };
+
+      return names[key] || key;
+    }
+
+    // 총점 계산 함수
+    function getTotalScore(scores) {
+      return (
+        Number(scores.challenge || 0) +
+        Number(scores.value || 0) +
+        Number(scores.cooperation || 0) +
+        Number(scores.proactive || 0)
+      );
+    }
+
+    // 가장 높은 역량 찾기 함수
+    function getBestStrength(scores) {
+      const entries = Object.entries(scores);
+
+      const maxScore = Math.max(
+        Number(scores.challenge || 0),
+        Number(scores.value || 0),
+        Number(scores.cooperation || 0),
+        Number(scores.proactive || 0)
+      );
+
+      const bestKeys = entries
+        .filter(([key, value]) => Number(value) === maxScore)
+        .map(([key]) => key);
+
+      return {
+        keys: bestKeys,
+        names: bestKeys.map(getKoreanStrengthName),
+        score: maxScore
+      };
+    }
+
+    // 점수 막대 HTML 만들기
+    function makeScoreBar(score) {
+      const percent = Math.round((score / MAX_SCORE_PER_STRENGTH) * 100);
+
+      return `
+        <div>${score}점 / ${MAX_SCORE_PER_STRENGTH}점</div>
+        <div class="bar-wrap">
+          <div class="bar" style="width:${percent}%;"></div>
+        </div>
+      `;
+    }
+
+    // 저장된 결과 불러오기
+    function loadResults() {
+      const results = JSON.parse(
+        localStorage.getItem("entrepreneurshipResults") || "[]"
+      );
+
+      // 기존 표 내용 비우기
+      resultBody.innerHTML = "";
+
+      if (results.length === 0) {
+        emptyMessage.classList.remove("hidden");
+        totalCount.textContent = "0명";
+        averageTotal.textContent = "0점";
+        mostBest.textContent = "-";
+        return;
+      }
+
+      emptyMessage.classList.add("hidden");
+
+      let totalScoreSum = 0;
+
+      // 최고 역량 빈도 계산용 객체
+      const bestCount = {
+        challenge: 0,
+        value: 0,
+        cooperation: 0,
+        proactive: 0
+      };
+
+      results.forEach((result, index) => {
+        const scores = result.scores || {
+          challenge: 0,
+          value: 0,
+          cooperation: 0,
+          proactive: 0
+        };
+
+        const total = getTotalScore(scores);
+        totalScoreSum += total;
+
+        const best = getBestStrength(scores);
+
+        // 가장 높은 역량 빈도 누적
+        best.keys.forEach(key => {
+          if (bestCount[key] !== undefined) {
+            bestCount[key]++;
+          }
+        });
+
+        // 가장 높은 역량은 빨간색 굵은 글씨로 표시
+        const bestText = best.names
+          .map(name => `<span class="best-strength">${name}</span>`)
+          .join(", ");
+
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${result.name || "이름 없음"}</td>
+          <td>${result.date || "-"}</td>
+
+          <td class="score-cell">
+            ${makeScoreBar(Number(scores.challenge || 0))}
+          </td>
+
+          <td class="score-cell">
+            ${makeScoreBar(Number(scores.value || 0))}
+          </td>
+
+          <td class="score-cell">
+            ${makeScoreBar(Number(scores.cooperation || 0))}
+          </td>
+
+          <td class="score-cell">
+            ${makeScoreBar(Number(scores.proactive || 0))}
+          </td>
+
+          <td>
+            <strong>${total}점 / ${MAX_TOTAL_SCORE}점</strong>
+          </td>
+
+          <td>
+            ${bestText}
+            <br>
+            <span style="font-size:0.85rem; color:#666;">
+              ${best.score}점
+            </span>
+          </td>
+        `;
+
+        resultBody.appendChild(tr);
+      });
+
+      // 참여 학생 수 표시
+      totalCount.textContent = `${results.length}명`;
+
+      // 평균 총점 표시
+      const avg = totalScoreSum / results.length;
+      averageTotal.textContent = `${avg.toFixed(1)}점`;
+
+      // 가장 많이 나온 최고 역량 계산
+      const maxBestCount = Math.max(...Object.values(bestCount));
+
+      const mostBestKeys = Object.entries(bestCount)
+        .filter(([key, value]) => value === maxBestCount && value > 0)
+        .map(([key]) => getKoreanStrengthName(key));
+
+      mostBest.textContent = mostBestKeys.length > 0
+        ? mostBestKeys.join(", ")
+        : "-";
+    }
+
+    // 전체 결과 삭제
+    function clearResults() {
+      const ok = confirm("정말 모든 검사 결과를 삭제할까요? 이 작업은 되돌릴 수 없습니다.");
+
+      if (!ok) return;
+
+      localStorage.removeItem("entrepreneurshipResults");
+      loadResults();
+      alert("전체 검사 결과가 삭제되었습니다.");
+    }
+
+    // CSV 다운로드
+    function downloadCSV() {
+      const results = JSON.parse(
+        localStorage.getItem("entrepreneurshipResults") || "[]"
+      );
+
+      if (results.length === 0) {
+        alert("다운로드할 검사 결과가 없습니다.");
+        return;
+      }
+
+      // CSV 헤더
+      let csv = "번호,이름,검사일시,도전,가치창출,협력,진취,총점,가장 높은 역량\n";
+
+      results.forEach((result, index) => {
+        const scores = result.scores || {
+          challenge: 0,
+          value: 0,
+          cooperation: 0,
+          proactive: 0
+        };
+
+        const total = getTotalScore(scores);
+        const best = getBestStrength(scores);
+
+        const row = [
+          index + 1,
+          result.name || "이름 없음",
+          result.date || "-",
+          scores.challenge || 0,
+          scores.value || 0,
+          scores.cooperation || 0,
+          scores.proactive || 0,
+          total,
+          best.names.join("/")
+        ];
+
+        csv += row.join(",") + "\n";
+      });
+
+      // 한글 깨짐 방지를 위한 BOM 추가
+      const blob = new Blob(["\uFEFF" + csv], {
+        type: "text/csv;charset=utf-8;"
+      });
+
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "기업가_역량_검사_결과.csv";
+      a.click();
+
+      URL.revokeObjectURL(url);
+    }
+
+    // 페이지가 열리면 자동으로 결과 불러오기
+    window.onload = loadResults;
+  </script>
+</body>
+</html>

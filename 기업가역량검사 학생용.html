@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>나의 기업가 역량 알아보기</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    /* 전체 화면 기본 설정 */
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: #f5f7fb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #222;
+    }
+
+    /* 모바일·태블릿에 적합한 카드형 화면 */
+    .container {
+      width: 100%;
+      max-width: 520px;
+      margin: 16px;
+      padding: 22px;
+      box-sizing: border-box;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    h1, h2, h3 {
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      color: #263238;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      color: #303f9f;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      color: #555;
+    }
+
+    p {
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* 이름 입력창 */
+    .name-input {
+      width: 100%;
+      padding: 13px;
+      font-size: 1.05rem;
+      margin: 10px 0 16px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    /* 공통 버튼 */
+    .btn {
+      width: 100%;
+      padding: 14px;
+      margin: 7px 0;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      box-sizing: border-box;
+    }
+
+    .btn-main {
+      background: #3f51b5;
+      color: white;
+      font-weight: bold;
+    }
+
+    .btn-sub {
+      background: #e8eaf6;
+      color: #283593;
+    }
+
+    .btn-score {
+      background: #f4f6ff;
+      border: 1px solid #d5dcff;
+      color: #222;
+      text-align: left;
+      padding-left: 18px;
+    }
+
+    .btn-score:hover {
+      background: #e8edff;
+    }
+
+    .question-box {
+      background: #f8f9ff;
+      border: 1px solid #e1e5ff;
+      border-radius: 14px;
+      padding: 18px;
+      margin: 18px 0;
+    }
+
+    .question {
+      font-size: 1.17rem;
+      line-height: 1.55;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    .progress {
+      text-align: center;
+      margin-top: 12px;
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .progress-bar-wrap {
+      width: 100%;
+      height: 10px;
+      background: #eeeeee;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 12px 0;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #3f51b5;
+      border-radius: 999px;
+      transition: width 0.2s;
+    }
+
+    .nav {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .nav button {
+      flex: 1;
+      padding: 11px;
+      border: none;
+      border-radius: 10px;
+      background: #eeeeee;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .nav button:hover {
+      background: #e0e0e0;
+    }
+
+    /* 결과 표 */
+    .score-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 0.95rem;
+    }
+
+    .score-table th,
+    .score-table td {
+      border: 1px solid #ddd;
+      padding: 9px;
+      text-align: center;
+    }
+
+    .score-table th {
+      background: #f0f0f8;
+    }
+
+    .score-table td:nth-child(1) {
+      font-weight: bold;
+    }
+
+    .score-bar-wrap {
+      width: 100%;
+      height: 11px;
+      background: #eeeeee;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+
+    .score-bar {
+      height: 100%;
+      background: #3f51b5;
+      border-radius: 999px;
+    }
+
+    /* 가장 우수한 역량 화면 */
+    .best-strength-box {
+      margin-top: 18px;
+      padding: 24px 18px;
+      border-radius: 18px;
+      background: #fff3f3;
+      border: 2px solid #ffcdd2;
+      text-align: center;
+    }
+
+    .best-title {
+      font-size: 1.05rem;
+      margin-bottom: 10px;
+      color: #555;
+      font-weight: bold;
+    }
+
+    .best-name {
+      font-size: 2rem;
+      font-weight: bold;
+      color: red;
+      margin: 10px 0;
+    }
+
+    .best-score {
+      font-size: 1.15rem;
+      color: #b71c1c;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    .best-desc {
+      font-size: 1rem;
+      line-height: 1.55;
+      margin-top: 10px;
+    }
+
+    .highlight-name {
+      font-weight: bold;
+      color: #3f51b5;
+    }
+
+    .notice {
+      font-size: 0.92rem;
+      color: #666;
+      line-height: 1.5;
+      margin-top: 12px;
+    }
+
+    .small-text {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        margin: 10px;
+        padding: 18px;
+      }
+
+      h1 {
+        font-size: 1.35rem;
+      }
+
+      .best-name {
+        font-size: 1.7rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- 1. 시작 화면: 이름 입력 -->
+    <div id="start-screen">
+      <h1>나의 기업가 역량 알아보기</h1>
+
+      <p>
+        이름을 입력하고 검사를 시작해 보세요.<br>
+        질문을 읽고 나와 가장 비슷한 점수를 골라 주세요.<br>
+        정답은 없으니 솔직하게 답하면 됩니다.
+      </p>
+
+      <input
+        id="student-name"
+        class="name-input"
+        type="text"
+        placeholder="이름을 입력해 주세요"
+      />
+
+      <button class="btn btn-main" onclick="startTest()">
+        검사 시작하기
+      </button>
+
+      <p class="notice">
+        ※ 이 검사는 도전, 가치창출, 협력, 진취 역량을 알아보는 간단한 자기 진단입니다.
+      </p>
+    </div>
+
+    <!-- 2. 질문 화면 -->
+    <div id="question-screen" class="hidden">
+      <h2><span id="display-name"></span>의 기업가 역량 검사</h2>
+      <h3>질문 <span id="q-number"></span></h3>
+
+      <div class="progress-bar-wrap">
+        <div id="progress-bar" class="progress-bar"></div>
+      </div>
+
+      <div class="question-box">
+        <p id="q-text" class="question"></p>
+      </div>
+
+      <!-- 1~5점 응답 버튼 -->
+      <button class="btn btn-score" onclick="answer(5)">
+        5점: 매우 그렇다
+      </button>
+      <button class="btn btn-score" onclick="answer(4)">
+        4점: 그렇다
+      </button>
+      <button class="btn btn-score" onclick="answer(3)">
+        3점: 보통이다
+      </button>
+      <button class="btn btn-score" onclick="answer(2)">
+        2점: 그렇지 않다
+      </button>
+      <button class="btn btn-score" onclick="answer(1)">
+        1점: 전혀 그렇지 않다
+      </button>
+
+      <div class="nav">
+        <button onclick="prevQuestion()">이전</button>
+        <button onclick="nextQuestion()">다음</button>
+      </div>
+
+      <div class="progress" id="progress-text"></div>
+    </div>
+
+    <!-- 3. 결과 화면 1: 네 가지 역량 점수 -->
+    <div id="result-screen-1" class="hidden">
+      <h2><span id="name-in-result-1"></span>의 검사 결과</h2>
+
+      <p>
+        아래는 네 가지 기업가 역량 점수입니다.<br>
+        각 역량은 <strong>15점 만점</strong>입니다.
+      </p>
+
+      <table class="score-table">
+        <thead>
+          <tr>
+            <th>역량</th>
+            <th>점수</th>
+            <th>그래프</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>도전</td>
+            <td id="score-challenge"></td>
+            <td>
+              <div class="score-bar-wrap">
+                <div id="bar-challenge" class="score-bar"></div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>가치창출</td>
+            <td id="score-value"></td>
+            <td>
+              <div class="score-bar-wrap">
+                <div id="bar-value" class="score-bar"></div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>협력</td>
+            <td id="score-cooperation"></td>
+            <td>
+              <div class="score-bar-wrap">
+                <div id="bar-cooperation" class="score-bar"></div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>진취</td>
+            <td id="score-proactive"></td>
+            <td>
+              <div class="score-bar-wrap">
+                <div id="bar-proactive" class="score-bar"></div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="notice">
+        다음 화면에서 <span class="highlight-name">나의 가장 우수한 역량</span>을 크게 보여 줍니다.
+      </p>
+
+      <button class="btn btn-main" onclick="goToBestStrength()">
+        다음으로
+      </button>
+    </div>
+
+    <!-- 4. 결과 화면 2: 가장 우수한 역량 크게 보여주기 -->
+    <div id="result-screen-2" class="hidden">
+      <h2><span id="name-in-result-2"></span>의 가장 우수한 역량</h2>
+
+      <div class="best-strength-box">
+        <div class="best-title">가장 점수가 높은 나의 기업가 역량은?</div>
+        <div id="best-strength-name" class="best-name"></div>
+        <div id="best-strength-score" class="best-score"></div>
+        <div id="best-strength-desc" class="best-desc"></div>
+      </div>
+
+      <p class="notice">
+        결과가 저장되었습니다. 선생님은 교사용 결과 확인 페이지에서 검사 참여자들의 결과를 확인할 수 있습니다.
+      </p>
+
+      <button class="btn btn-sub" onclick="restartTest()">
+        처음으로 돌아가기
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    /*
+      ==========================================
+      1. 검사 문항 설정
+      ==========================================
+      - 총 12문항
+      - 도전 3문항
+      - 가치창출 3문항
+      - 협력 3문항
+      - 진취 3문항
+      - 각 문항은 1~5점
+    */
+    const questions = [
+      // 도전 역량
+      {
+        text: "나는 실패가 두려워도 새로운 일이나 활동에 용기 있게 도전한다.",
+        category: "challenge"
+      },
+      {
+        text: "나는 원하는 대로 일이 풀리지 않아도 포기하지 않고 다시 시도한다.",
+        category: "challenge"
+      },
+      {
+        text: "나는 어려운 상황이 생겨도 ‘할 수 있다’는 긍정적인 마음을 갖는다.",
+        category: "challenge"
+      },
+
+      // 가치창출 역량
+      {
+        text: "나는 학교나 일상생활에서 생기는 불편함이나 문제점을 잘 발견한다.",
+        category: "value"
+      },
+      {
+        text: "나는 기존 방식과 다르게 문제를 해결할 창의적인 아이디어를 생각한다.",
+        category: "value"
+      },
+      {
+        text: "나는 내가 낸 아이디어가 사람들에게 어떤 도움을 줄지 깊이 고민한다.",
+        category: "value"
+      },
+
+      // 협력 역량
+      {
+        text: "나는 다른 친구들의 생각과 의견을 존중하며 경청한다.",
+        category: "cooperation"
+      },
+      {
+        text: "나는 모둠 활동에서 나의 역할에 책임감을 갖고 친구들과 협력한다.",
+        category: "cooperation"
+      },
+      {
+        text: "나는 모둠원 간에 의견이 다를 때 대화로 원만하게 해결하려 노력한다.",
+        category: "cooperation"
+      },
+
+      // 진취 역량
+      {
+        text: "나는 시키지 않아도 스스로 목표를 정하고 주도적으로 행동한다.",
+        category: "proactive"
+      },
+      {
+        text: "나는 한 번 시작한 일은 끝까지 책임감 있게 마무리한다.",
+        category: "proactive"
+      },
+      {
+        text: "나는 내 행동과 결정에 대해 스스로 책임질 줄 안다.",
+        category: "proactive"
+      }
+    ];
+
+    /*
+      ==========================================
+      2. 기본 변수
+      ==========================================
+    */
+    let studentName = "";
+    let answers = new Array(questions.length).fill(null);
+    let currentIndex = 0;
+    let lastScores = null;
+
+    const MAX_SCORE_PER_STRENGTH = 15;
+
+    /*
+      ==========================================
+      3. HTML 요소 가져오기
+      ==========================================
+    */
+    const startScreen = document.getElementById("start-screen");
+    const questionScreen = document.getElementById("question-screen");
+    const resultScreen1 = document.getElementById("result-screen-1");
+    const resultScreen2 = document.getElementById("result-screen-2");
+
+    const nameInput = document.getElementById("student-name");
+    const displayName = document.getElementById("display-name");
+
+    const qNumber = document.getElementById("q-number");
+    const qText = document.getElementById("q-text");
+    const progressText = document.getElementById("progress-text");
+    const progressBar = document.getElementById("progress-bar");
+
+    const nameInResult1 = document.getElementById("name-in-result-1");
+    const nameInResult2 = document.getElementById("name-in-result-2");
+
+    const scoreChallenge = document.getElementById("score-challenge");
+    const scoreValue = document.getElementById("score-value");
+    const scoreCooperation = document.getElementById("score-cooperation");
+    const scoreProactive = document.getElementById("score-proactive");
+
+    const barChallenge = document.getElementById("bar-challenge");
+    const barValue = document.getElementById("bar-value");
+    const barCooperation = document.getElementById("bar-cooperation");
+    const barProactive = document.getElementById("bar-proactive");
+
+    const bestStrengthName = document.getElementById("best-strength-name");
+    const bestStrengthScore = document.getElementById("best-strength-score");
+    const bestStrengthDesc = document.getElementById("best-strength-desc");
+
+    /*
+      ==========================================
+      4. 역량명 변환 함수
+      ==========================================
+    */
+    function getKoreanStrengthName(key) {
+      const names = {
+        challenge: "도전",
+        value: "가치창출",
+        cooperation: "협력",
+        proactive: "진취"
+      };
+
+      return names[key] || key;
+    }
+
+    /*
+      ==========================================
+      5. 검사 시작 함수
+      ==========================================
+    */
+    function startTest() {
+      const name = nameInput.value.trim();
+
+      if (!name) {
+        alert("이름을 입력해 주세요.");
+        nameInput.focus();
+        return;
+      }
+
+      studentName = name;
+
+      displayName.textContent = studentName;
+      nameInResult1.textContent = studentName;
+      nameInResult2.textContent = studentName;
+
+      startScreen.classList.add("hidden");
+      questionScreen.classList.remove("hidden");
+
+      showQuestion();
+    }
+
+    /*
+      ==========================================
+      6. 현재 문항 보여주기
+      ==========================================
+    */
+    function showQuestion() {
+      qNumber.textContent = `${currentIndex + 1} / ${questions.length}`;
+      qText.textContent = questions[currentIndex].text;
+
+      progressText.textContent =
+        `지금은 ${currentIndex + 1}번 문항입니다.`;
+
+      const percent = ((currentIndex + 1) / questions.length) * 100;
+      progressBar.style.width = `${percent}%`;
+    }
+
+    /*
+      ==========================================
+      7. 응답 선택 함수
+      ==========================================
+      - 학생이 1~5점 중 하나를 누르면 점수를 저장합니다.
+      - 마지막 문항이 아니면 자동으로 다음 문항으로 이동합니다.
+      - 마지막 문항이면 검사 결과를 계산합니다.
+    */
+    function answer(score) {
+      answers[currentIndex] = score;
+
+      if (currentIndex < questions.length - 1) {
+        currentIndex++;
+        showQuestion();
+      } else {
+        finishTest();
+      }
+    }
+
+    /*
+      ==========================================
+      8. 이전 문항 이동
+      ==========================================
+    */
+    function prevQuestion() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        showQuestion();
+      }
+    }
+
+    /*
+      ==========================================
+      9. 다음 문항 이동
+      ==========================================
+      - 이미 답한 문항이라면 다음으로 이동할 수 있습니다.
+      - 마지막 문항에서는 모든 문항 응답 여부 확인 후 결과를 계산합니다.
+    */
+    function nextQuestion() {
+      if (answers[currentIndex] === null) {
+        alert("현재 문항에 먼저 답해 주세요.");
+        return;
+      }
+
+      if (currentIndex < questions.length - 1) {
+        currentIndex++;
+        showQuestion();
+      } else {
+        finishTest();
+      }
+    }
+
+    /*
+      ==========================================
+      10. 점수 계산 함수
+      ==========================================
+    */
+    function calculateScores() {
+      const scores = {
+        challenge: 0,
+        value: 0,
+        cooperation: 0,
+        proactive: 0
+      };
+
+      questions.forEach((q, index) => {
+        scores[q.category] += Number(answers[index] || 0);
+      });
+
+      return scores;
+    }
+
+    /*
+      ==========================================
+      11. 가장 높은 역량 찾기
+      ==========================================
+      - 동점이 있으면 여러 역량을 함께 반환합니다.
+    */
+    function getBestStrength(scores) {
+      const entries = Object.entries(scores);
+
+      const maxScore = Math.max(
+        Number(scores.challenge || 0),
+        Number(scores.value || 0),
+        Number(scores.cooperation || 0),
+        Number(scores.proactive || 0)
+      );
+
+      const bestKeys = entries
+        .filter(([key, value]) => Number(value) === maxScore)
+        .map(([key]) => key);
+
+      return {
+        keys: bestKeys,
+        names: bestKeys.map(getKoreanStrengthName),
+        score: maxScore
+      };
+    }
+
+    /*
+      ==========================================
+      12. 학생 검사 결과 저장 함수
+      ==========================================
+      - 교사용 페이지에서 불러올 수 있도록 localStorage에 저장합니다.
+      - 저장 이름은 teacher.html 코드와 같은 entrepreneurshipResults입니다.
+    */
+    function saveStudentResult(studentName, scores, answers) {
+      const best = getBestStrength(scores);
+
+      const result = {
+        id: Date.now(),
+        name: studentName,
+        date: new Date().toLocaleString("ko-KR"),
+        scores: scores,
+        answers: answers,
+        bestStrengthKeys: best.keys,
+        bestStrengthNames: best.names,
+        bestStrengthScore: best.score
+      };
+
+      const savedResults = JSON.parse(
+        localStorage.getItem("entrepreneurshipResults") || "[]"
+      );
+
+      savedResults.push(result);
+
+      localStorage.setItem(
+        "entrepreneurshipResults",
+        JSON.stringify(savedResults)
+      );
+    }
+
+    /*
+      ==========================================
+      13. 검사 완료 및 결과 화면 표시
+      ==========================================
+    */
+    function finishTest() {
+      if (!answers.every(answer => answer !== null)) {
+        alert("아직 답하지 않은 문항이 있어요.");
+        return;
+      }
+
+      const scores = calculateScores();
+      lastScores = scores;
+
+      // 학생 검사 결과 저장
+      saveStudentResult(studentName, scores, answers);
+
+      // 결과 점수 표시
+      scoreChallenge.textContent = `${scores.challenge}점 / ${MAX_SCORE_PER_STRENGTH}점`;
+      scoreValue.textContent = `${scores.value}점 / ${MAX_SCORE_PER_STRENGTH}점`;
+      scoreCooperation.textContent = `${scores.cooperation}점 / ${MAX_SCORE_PER_STRENGTH}점`;
+      scoreProactive.textContent = `${scores.proactive}점 / ${MAX_SCORE_PER_STRENGTH}점`;
+
+      // 점수 그래프 표시
+      barChallenge.style.width =
+        `${(scores.challenge / MAX_SCORE_PER_STRENGTH) * 100}%`;
+      barValue.style.width =
+        `${(scores.value / MAX_SCORE_PER_STRENGTH) * 100}%`;
+      barCooperation.style.width =
+        `${(scores.cooperation / MAX_SCORE_PER_STRENGTH) * 100}%`;
+      barProactive.style.width =
+        `${(scores.proactive / MAX_SCORE_PER_STRENGTH) * 100}%`;
+
+      // 화면 전환
+      questionScreen.classList.add("hidden");
+      resultScreen1.classList.remove("hidden");
+
+      // 개발자 확인용 출력
+      console.log("학생 이름:", studentName);
+      console.log("응답:", answers);
+      console.log("역량 점수:", scores);
+    }
+
+    /*
+      ==========================================
+      14. 가장 우수한 역량 화면으로 이동
+      ==========================================
+    */
+    function goToBestStrength() {
+      if (!lastScores) {
+        alert("검사 결과를 찾을 수 없습니다.");
+        return;
+      }
+
+      const best = getBestStrength(lastScores);
+
+      bestStrengthName.textContent = best.names.join(", ");
+      bestStrengthScore.textContent = `${best.score}점 / ${MAX_SCORE_PER_STRENGTH}점`;
+
+      let desc = "";
+
+      if (best.keys.length > 1) {
+        desc =
+          `${studentName}님은 여러 역량이 고르게 뛰어나게 나타났어요. ` +
+          `특히 ${best.names.join(", ")} 역량이 가장 높게 나타났습니다. ` +
+          `이 강점을 살려 친구들과 함께 문제를 해결하고 새로운 활동에 도전해 보세요.`;
+      } else {
+        const bestKey = best.keys[0];
+
+        if (bestKey === "challenge") {
+          desc =
+            `${studentName}님은 새로운 일에 용기 있게 도전하고, ` +
+            `어려움이 있어도 다시 시도하려는 힘이 잘 자라고 있어요.`;
+        } else if (bestKey === "value") {
+          desc =
+            `${studentName}님은 문제를 발견하고, ` +
+            `사람들에게 도움이 되는 새로운 아이디어를 생각하는 힘이 잘 자라고 있어요.`;
+        } else if (bestKey === "cooperation") {
+          desc =
+            `${studentName}님은 친구들의 의견을 존중하고, ` +
+            `함께 협력하며 문제를 해결하는 힘이 잘 자라고 있어요.`;
+        } else if (bestKey === "proactive") {
+          desc =
+            `${studentName}님은 스스로 목표를 정하고, ` +
+            `맡은 일을 책임감 있게 끝까지 해내는 힘이 잘 자라고 있어요.`;
+        }
+      }
+
+      bestStrengthDesc.textContent = desc;
+
+      resultScreen1.classList.add("hidden");
+      resultScreen2.classList.remove("hidden");
+    }
+
+    /*
+      ==========================================
+      15. 처음으로 돌아가기
+      ==========================================
+      - 같은 학생이 다시 검사하거나,
+      - 다음 학생이 같은 기기로 검사할 때 사용합니다.
+    */
+    function restartTest() {
+      studentName = "";
+      answers = new Array(questions.length).fill(null);
+      currentIndex = 0;
+      lastScores = null;
+
+      nameInput.value = "";
+
+      resultScreen2.classList.add("hidden");
+      startScreen.classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>
